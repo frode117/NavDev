@@ -1,0 +1,15 @@
+{
+  "basic": {
+    "title": "开发导航",
+    "description": "工作中常用的网站，开发工具和开源项目分享导航。",
+    "keywords": "开发导航,开发工具"
+  },
+  "appearance": {
+    "logo": "/assets/images/alogo.webp",
+    "favicon": "/assets/images/favicon.webp",
+    "theme": "system"
+  },
+  "navigation": {
+    "linkTarget": "_blank"
+  }
+}

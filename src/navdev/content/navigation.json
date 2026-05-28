@@ -1,0 +1,544 @@
+{
+  "navigationItems": [
+    {
+      "id": "1",
+      "title": "常用推荐",
+      "icon": "Star",
+      "items": [],
+      "subCategories": [
+        {
+          "id": "dc4f9a93-ea1b-4c27-b91c-1baab6f9b15e",
+          "title": "工作常用",
+          "icon": "Mail",
+          "description": "工作常用的一些网站",
+          "enabled": true,
+          "items": [
+            {
+              "id": "1779880429476",
+              "title": "Globalflow",
+              "href": "https://globalflow.msi.com/WebAgenda/",
+              "description": "访问 globalflow.msi.com",
+              "icon": "https://www.google.com/s2/favicons?sz=128&domain=globalflow.msi.com",
+              "enabled": true
+            },
+            {
+              "id": "1779880561565",
+              "title": "Globalsys",
+              "href": "https://globalsys.msi.com/Globalsys/Public/Logon.aspx",
+              "description": "访问 globalsys.msi.com",
+              "icon": "https://www.google.com/s2/favicons?sz=128&domain=globalsys.msi.com",
+              "enabled": true
+            },
+            {
+              "id": "1779880596795",
+              "title": "Gitlab-pss",
+              "href": "https://gitlab-pss.msi.com/",
+              "description": "访问 gitlab-pss.msi.com",
+              "icon": "https://www.google.com/s2/favicons?sz=128&domain=gitlab-pss.msi.com",
+              "enabled": true
+            },
+            {
+              "id": "1779880605575",
+              "title": "Figma - New Center",
+              "href": "https://www.figma.com/design/oR1rARWCgTcZOBeC7di4pY/202507_NEW_CENTER?t=668SCsqcy0VpH3yS-0",
+              "description": "Figma - New Center",
+              "icon": "/assets/images/logos/figma.webp",
+              "enabled": true
+            },
+            {
+              "id": "1779880787108",
+              "title": "Figma - Center S",
+              "href": "https://www.figma.com/design/9Uw1wO24NJ2ZK2IRLx8D7y/202507_Center-S-1.5?t=JSVTsSSv9bLczmDo-0",
+              "description": "Figma - Center S",
+              "icon": "/assets/images/logos/figma.webp",
+              "enabled": true
+            },
+            {
+              "id": "1779881440277",
+              "title": "WeeklyReport_K390_KSSW_2026",
+              "href": "https://docs.qq.com/sheet/DSkdGUENOaVZFTnhv?aidPos=detail&no_promotion=1&is_blank_or_template=blank&tab=6hslyi",
+              "description": "WeeklyReport",
+              "icon": "/assets/favicon_18.png",
+              "enabled": true
+            },
+            {
+              "id": "1779881684636",
+              "title": "K390_SW_2026",
+              "href": "https://docs.qq.com/aio/DV0VWZ3VEU2NPQVN4?no_promotion=1&is_blank_or_template=template&p=kOgEudJHCptJHF9jllUd9U",
+              "description": "昆山工作項目",
+              "icon": "/assets/favicon_19.ico",
+              "enabled": true
+            }
+          ]
+        }
+      ],
+      "description": "",
+      "enabled": true
+    },
+    {
+      "id": "9",
+      "title": "AI工具包",
+      "icon": "Brain",
+      "items": [],
+      "subCategories": [
+        {
+          "id": "cbb3e33d-408b-41ba-9e9a-e0444303e3fd",
+          "title": "AI助手",
+          "icon": "Book",
+          "description": "",
+          "enabled": true,
+          "items": [
+            {
+              "id": "9_1",
+              "title": "ChatGPT",
+              "href": "https://chat.openai.com/",
+              "description": "OpenAI开发的人工智能聊天机器人程序。",
+              "icon": "/assets/images/logos/chatgpt.webp",
+              "enabled": true
+            },
+            {
+              "id": "9_3",
+              "title": "Gemini",
+              "href": "https://gemini.google.com/",
+              "description": "Google开发的生成式人工智能聊天机器人。它基于同名的Gemini系列大型语言模型。",
+              "icon": "/assets/images/logos/gemini.svg",
+              "enabled": true
+            },
+            {
+              "id": "9_4",
+              "title": "Poe",
+              "href": "https://poe.com/",
+              "description": "Poe一款由Quora开发的应用程序。该应用程序集成了多种生成式人工智能，可使用户能够便利切换，比较和使用市场上主流的大型语言模型。",
+              "icon": "/assets/images/logos/poe.svg",
+              "enabled": true
+            },
+            {
+              "id": "item-1764762513556",
+              "enabled": true,
+              "title": "Google AI Studio",
+              "href": "https://aistudio.google.com/prompts/new_chat",
+              "description": "Google AI Studio",
+              "icon": "/assets/favicon_14.webp"
+            }
+          ]
+        },
+        {
+          "id": "cbb3e33d-408b-41ba-9e9a-e0444303e3ff",
+          "title": "生产力工具",
+          "icon": "Book",
+          "description": "",
+          "enabled": true,
+          "items": [
+            {
+              "id": "1764162262399",
+              "title": "Google NotebookLM | AI 研究工具与思考伙伴",
+              "href": "https://notebooklm.google/",
+              "description": "认识 NotebookLM：给力的 AI 研究工具与思考伙伴，可以帮助您分析来源、理清复杂的资料及转换内容。",
+              "icon": "/assets/favicon_13.svg",
+              "enabled": true
+            }
+          ]
+        },
+        {
+          "id": "21bf96f3-acb0-4e28-aaa8-2759ac55d278",
+          "title": "MCP Server",
+          "icon": "Edit",
+          "description": "",
+          "enabled": true,
+          "items": [
+            {
+              "id": "1752554261491",
+              "title": "MCP Server 集合站",
+              "href": "https://smithery.ai/",
+              "description": "各种各样的 MCP Server",
+              "icon": "/assets/img_7.webp",
+              "enabled": true
+            },
+            {
+              "id": "1767055771104",
+              "title": "Awesome MCP Servers",
+              "href": "https://mcpservers.org/",
+              "description": "A curated collection of MCP (Model Context Protocol) servers. Search and discover MCP servers and clients.",
+              "icon": "/assets/favicon_17.png",
+              "enabled": true
+            }
+          ]
+        },
+        {
+          "id": "428d0ba1-78f8-48d6-83db-f837f3830e1f",
+          "title": "多媒体",
+          "icon": "BookOpen",
+          "description": "",
+          "enabled": true,
+          "items": [
+            {
+              "id": "1760435371540",
+              "title": "Suno | AI Music",
+              "href": "https://suno.com/home",
+              "description": "Create stunning original music for free in seconds using AI. Make your own masterpieces, share with friends, and discover music from artists worldwide.",
+              "icon": "/assets/favicon_4.webp",
+              "enabled": true
+            },
+            {
+              "id": "1760435669948",
+              "title": "Nano Banana",
+              "href": "https://aistudio.google.com/gen-media",
+              "description": "在AI 图像生成领域，神秘的Nano Banana 悄悄窜起，现已正名为Gemini 2.5 Flash Image。它最初并非透过Google 官方宣传引起关注，而是在LM Arena 评比平台上表现亮眼，还掀起 Gemini 公仔风潮！",
+              "icon": "/assets/favicon_5.webp",
+              "enabled": true
+            },
+            {
+              "id": "1760605598288",
+              "title": "veo-3",
+              "href": "https://aistudio.google.com/models/veo-3",
+              "description": "The fastest path from prompt to production with Gemini",
+              "icon": "/assets/favicon_10.webp",
+              "enabled": true
+            }
+          ]
+        },
+        {
+          "id": "eb656a11-5442-4670-9cb6-9ba9bd08682f",
+          "title": "AI 代码生成助手",
+          "icon": "Book",
+          "description": "",
+          "enabled": true,
+          "items": [
+            {
+              "id": "1760513538759",
+              "title": "v0 by Vercel",
+              "href": "https://v0.app/",
+              "description": "Your collaborative AI assistant to design, iterate, and scale full-stack applications for the web.",
+              "icon": "/assets/favicon_9.webp",
+              "enabled": true
+            }
+          ]
+        }
+      ],
+      "description": "",
+      "enabled": true
+    },
+    {
+      "id": "1735265493940",
+      "title": "开发者工具包",
+      "icon": "Box",
+      "description": "开发者工具，工具包",
+      "enabled": true,
+      "items": [],
+      "subCategories": [
+        {
+          "id": "85e2f8e6-8b32-4452-9022-2ff45065ecf9",
+          "title": "ICON",
+          "icon": "BookOpen",
+          "description": "站点图标",
+          "enabled": true,
+          "items": [
+            {
+              "id": "1750831228317",
+              "title": "lucide",
+              "href": "https://lucide.dev/",
+              "description": "Beautiful &\nconsistent icons",
+              "icon": "/assets/img_6.webp",
+              "enabled": true
+            }
+          ]
+        },
+        {
+          "id": "4da4ad49-4cfe-4e78-992b-af84a1d6c0ad",
+          "title": "托管平台",
+          "icon": "Book",
+          "description": "",
+          "enabled": true,
+          "items": [
+            {
+              "id": "1735612561958",
+              "title": "Cloudflare",
+              "href": "https://dash.cloudflare.com/",
+              "description": "Cloudflare以向客户提供基于反向代理的内容分发网络及分布式域名解析服务为主要业务。",
+              "icon": "/assets/images/logos/cloudflar.webp",
+              "enabled": true
+            },
+            {
+              "id": "1735612588184",
+              "title": "Vercel",
+              "href": "https://vercel.com/",
+              "description": "Vercel 提供开发者工具和云基础设施，帮助构建、扩展和保护更快、更个性化的网络应用。",
+              "icon": "/assets/images/logos/vercel.webp",
+              "enabled": true
+            }
+          ]
+        },
+        {
+          "id": "2040df1a-cbcd-40fa-a85c-151b5735fbd2",
+          "title": "画图工具",
+          "icon": "Book",
+          "description": "架构图，流程图",
+          "enabled": true,
+          "items": [
+            {
+              "id": "1736921962115",
+              "title": "draw.io",
+              "href": "https://www.drawio.com/",
+              "description": "可以绘制架构图、流程图，软件周期内的其它设计图。为团队绘制安全第一的图表。\n将您的存储带到我们的在线工具，或使用桌面应用程序在本地保存。",
+              "icon": "/assets/img_1.webp",
+              "enabled": true
+            },
+            {
+              "id": "1736922380901",
+              "title": "Excalidraw",
+              "href": "https://excalidraw.com/",
+              "description": "Excalidraw是免费的在线协作画图工具。\n\n手写风格的草图非常好看；\n漂亮的图库。",
+              "icon": "/assets/img_2.webp",
+              "enabled": true
+            }
+          ]
+        },
+        {
+          "id": "62f10118-6926-4ea5-bb65-14adc90a29d2",
+          "title": "AI编程工具",
+          "icon": "Edit",
+          "description": "",
+          "enabled": true,
+          "items": [
+            {
+              "id": "1737529639971",
+              "title": "Cursor",
+              "href": "https://www.cursor.com/",
+              "description": "The AI Code Editor Built to make you extraordinarily productive, Cursor is the best way to code with AI.",
+              "icon": "/assets/img_3.webp",
+              "enabled": true
+            },
+            {
+              "id": "1737529752867",
+              "title": "Windsurf",
+              "href": "https://codeium.com/",
+              "description": "Introducing the Windsurf Editor\nThe new purpose-built IDE to harness magic",
+              "icon": "/assets/img_4.webp",
+              "enabled": true
+            },
+            {
+              "id": "1737529887245",
+              "title": "GitHub Copilot",
+              "href": "https://github.com/features/copilot",
+              "description": "The AI editor for everyone",
+              "icon": "/assets/img_10.png",
+              "enabled": true
+            },
+            {
+              "id": "1752662747639",
+              "title": "Claude code",
+              "href": "https://www.anthropic.com/claude-code",
+              "description": "Unleash Claude’s raw power directly in your terminal. Search million-line codebases instantly. Turn hours-long workflows into a single command. Your tools. Your workflow. Your codebase, evolving at thought speed.",
+              "icon": "/assets/img_8.webp",
+              "enabled": true
+            },
+            {
+              "id": "1760422942439",
+              "title": "Codex | OpenAI",
+              "href": "https://openai.com/zh-Hans-CN/codex/",
+              "description": "Codex 是 OpenAI 推出的一系列人工智能编码工具，通过将任务委托给强大的云端和本地编码代理，帮助开发人员提升工作效率。",
+              "icon": "/assets/favicon_3.webp",
+              "enabled": true
+            }
+          ]
+        },
+        {
+          "id": "47206329-6eed-422c-bdc9-c7cec1eb5190",
+          "title": "域名注册",
+          "icon": "Files",
+          "description": "",
+          "enabled": true,
+          "items": [
+            {
+              "id": "1754295485849",
+              "title": "namecheap",
+              "href": "https://www.namecheap.com/",
+              "description": "Register domain names at Namecheap. Buy cheap domain names and enjoy 24/7 support. With over 18 million domains under management, you know you’re in good hands.",
+              "icon": "/assets/favicon_1.webp",
+              "enabled": true
+            }
+          ]
+        },
+        {
+          "id": "2d7d4354-20f1-41a5-beeb-068031113bca",
+          "title": "视频制作",
+          "icon": "BookOpen",
+          "description": "",
+          "enabled": true,
+          "items": [
+            {
+              "id": "1759282146186",
+              "title": "Remotion",
+              "href": "https://www.remotion.dev/",
+              "description": "Make videos programmatically.Create real MP4 videos with React.\nParametrize content, render server-side and build applications.",
+              "icon": "/assets/favicon_2.webp",
+              "enabled": true
+            }
+          ]
+        },
+        {
+          "id": "044a42a2-b7be-4a19-bce8-1bc3fd98f052",
+          "title": "运维工具",
+          "icon": "Book",
+          "description": "",
+          "enabled": true,
+          "items": [
+            {
+              "id": "1761279460902",
+              "title": "宝塔",
+              "href": "https://www.bt.cn/new/index.html",
+              "description": "国内用户量很大的一家服务器运维面板",
+              "icon": "/assets/favicon_11.webp",
+              "enabled": true
+            },
+            {
+              "id": "1761279549812",
+              "title": "1panel",
+              "href": "https://1panel.cn/",
+              "description": "1Panel 提供了一个直观的 Web 界面，帮助用户轻松管理 Linux 服务器中的应用、网站、文件、数据库以及大语言模型（LLMs）等。",
+              "icon": "/assets/favicon_12.webp",
+              "enabled": true
+            }
+          ]
+        },
+        {
+          "id": "baf3db58-404b-4385-80cb-c2ddcf5747fc",
+          "title": "经验技巧",
+          "icon": "Files",
+          "description": "",
+          "enabled": true,
+          "items": [
+            {
+              "id": "1765453428896",
+              "title": "AGENTS.md",
+              "href": "https://agents.md/",
+              "description": "AGENTS.md is a simple, open format for guiding coding agents, used by over 60k open-source projects. Think of it as a README for agents.",
+              "icon": "/assets/favicon_16.webp",
+              "enabled": true
+            },
+            {
+              "id": "1760507233911",
+              "title": "Free for Developers",
+              "href": "https://free-for.dev/#/",
+              "description": "Developers and Open Source authors now have a massive amount of services offering free tiers, but it can be hard to find them all to make informed decisions.",
+              "icon": "/assets/favicon_6.webp",
+              "enabled": true
+            }
+          ]
+        },
+        {
+          "id": "dcda47c9-c772-4b36-9330-0264b0f8ab12",
+          "title": "文档工具",
+          "icon": "BookOpen",
+          "description": "",
+          "enabled": true,
+          "items": [
+            {
+              "id": "1760512389014",
+              "title": "Docusaurus",
+              "href": "https://docusaurus.io/",
+              "description": "Build optimized websites quickly, focus on your content.",
+              "icon": "/assets/favicon_7.webp",
+              "enabled": true
+            },
+            {
+              "id": "1760512493923",
+              "title": "VuePress",
+              "href": "https://vuepress.vuejs.org/",
+              "description": "Vue 驱动的静态网站生成器",
+              "icon": "/assets/favicon_8.webp",
+              "enabled": true
+            },
+            {
+              "id": "1765310098728",
+              "title": "mdBook Documentation",
+              "href": "https://rust-lang.github.io/mdBook/index.html",
+              "description": "Create book from markdown files. Like Gitbook but implemented in Rust",
+              "icon": "/assets/img_9.webp",
+              "enabled": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "常用工具",
+      "icon": "Laptop",
+      "items": [],
+      "subCategories": [
+        {
+          "id": "3",
+          "title": "在线工具",
+          "href": "#在线工具",
+          "icon": "Folder",
+          "description": "",
+          "items": [
+            {
+              "id": "3_1",
+              "title": "TableConvert",
+              "href": "https://tableconvert.com/",
+              "description": "Excel转sql在线工具。将你的Excel数据转换成一个网络友好格式,包括HTML、JSON和XML,还可以把Excel 转换成Sql,excel 表格转成 Markdown",
+              "icon": "/assets/images/logos/tableconvert.webp",
+              "enabled": true
+            },
+            {
+              "id": "3_3",
+              "title": "Beautifier",
+              "href": "https://beautifier.io/",
+              "description": "Beautify JavaScript, JSON, React.js, HTML, CSS, SCSS, and SASS",
+              "icon": "/assets/images/logos/beautifier.webp",
+              "enabled": true
+            },
+            {
+              "id": "3_5",
+              "title": "TinyPNG",
+              "href": "https://tinypng.com/",
+              "description": "在线图片压缩工具",
+              "icon": "/assets/images/logos/tinypng.webp",
+              "enabled": true
+            },
+            {
+              "id": "1765279305478",
+              "title": "NewKit - 在线效率工具箱",
+              "href": "https://www.newkit.site/",
+              "description": "NewKit 提供精选的在线实用工具，JSON格式化、SQL美化、加密解密等，简洁高效，数据本地处理",
+              "icon": "/assets/favicon_15.svg",
+              "enabled": true
+            }
+          ],
+          "enabled": true
+        },
+        {
+          "id": "7",
+          "title": "在线配色",
+          "href": "#在线配色",
+          "icon": "Book",
+          "description": "",
+          "items": [
+            {
+              "id": "7_1",
+              "title": "Color Hunt",
+              "href": "https://colorhunt.co/",
+              "description": "色彩搭配",
+              "icon": "/assets/images/logos/colorhunt.webp",
+              "enabled": true
+            }
+          ],
+          "enabled": true
+        }
+      ],
+      "description": "",
+      "enabled": true
+    },
+    {
+      "id": "1760512235168",
+      "title": "开源项目",
+      "icon": "Code",
+      "description": "",
+      "enabled": true,
+      "items": [],
+      "subCategories": []
+    }
+  ]
+}
