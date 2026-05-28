@@ -84,6 +84,22 @@ export async function POST(request: NextRequest) {
 // 获取投稿列表 (GET) - 仅管理员使用
 export async function GET(request: NextRequest) {
     try {
+        // 检查环境变量
+        if (!GITHUB_OWNER || !GITHUB_REPO || !GITHUB_PAT) {
+            console.error('Missing GitHub configuration:', {
+                hasOwner: !!GITHUB_OWNER,
+                hasRepo: !!GITHUB_REPO,
+                hasPAT: !!GITHUB_PAT
+            })
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: 'GitHub 配置不完整，请检查环境变量 GITHUB_OWNER, GITHUB_REPO, GITHUB_PAT'
+                },
+                { status: 500 }
+            )
+        }
+
         const { searchParams } = new URL(request.url)
         const status = searchParams.get('status') || 'pending' // pending, approved, rejected, all
 
@@ -97,22 +113,35 @@ export async function GET(request: NextRequest) {
             labels = `${SUBMISSION_LABELS.SUBMISSION},${SUBMISSION_LABELS.REJECTED}`
         }
 
-        const response = await fetch(
-            `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues?labels=${labels}&state=all&per_page=100`,
-            {
-                headers: {
-                    'Authorization': `Bearer ${GITHUB_PAT}`,
-                    'Accept': 'application/vnd.github+json',
-                    'X-GitHub-Api-Version': '2022-11-28'
-                }
+        const apiUrl = `${GITHUB_API}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues?labels=${labels}&state=all&per_page=100`
+        console.log('Fetching submissions from:', apiUrl.replace(GITHUB_PAT, 'PAT_HIDDEN'))
+
+        const response = await fetch(apiUrl, {
+            headers: {
+                'Authorization': `Bearer ${GITHUB_PAT}`,
+                'Accept': 'application/vnd.github+json',
+                'X-GitHub-Api-Version': '2022-11-28'
             }
-        )
+        })
 
         if (!response.ok) {
-            throw new Error('Failed to fetch issues')
+            const errorData = await response.json().catch(() => ({}))
+            console.error('GitHub API error:', {
+                status: response.status,
+                statusText: response.statusText,
+                error: errorData
+            })
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: `GitHub API 错误 (${response.status}): ${errorData.message || response.statusText}`
+                },
+                { status: response.status }
+            )
         }
 
         const issues = await response.json()
+        console.log(`Found ${issues.length} issues with labels: ${labels}`)
 
         // 解析投稿数据
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -134,7 +163,7 @@ export async function GET(request: NextRequest) {
     } catch (error) {
         console.error('Get submissions error:', error)
         return NextResponse.json(
-            { success: false, message: '获取投稿列表失败' },
+            { success: false, message: '获取投稿列表失败: ' + (error instanceof Error ? error.message : '未知错误') },
             { status: 500 }
         )
     }

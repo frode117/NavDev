@@ -12,6 +12,7 @@ import { useToast } from "@/registry/new-york/hooks/use-toast"
 import { Skeleton } from "@/registry/new-york/ui/skeleton"
 import useSWR from 'swr'
 import { NavigationItem } from "@/types/navigation"
+import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd'
 import { Plus, AlertTriangle, Inbox } from 'lucide-react'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/registry/new-york/ui/select"
 
@@ -67,6 +68,8 @@ export default function VideosAdminPage() {
             })
 
             if (!response.ok) {
+                const errorText = await response.text()
+                console.error('添加失败:', errorText)
                 throw new Error('Failed to add')
             }
 
@@ -80,7 +83,113 @@ export default function VideosAdminPage() {
             console.error('添加分类错误:', error)
             toast({
                 title: "错误",
-                description: "添加失败",
+                description: "添加失败：" + (error as Error).message,
+                variant: "destructive"
+            })
+        }
+    }
+
+    const handleMoveToTop = async (id: string) => {
+        const index = items.findIndex(item => item.id === id)
+        if (index <= 0) return
+
+        try {
+            const response = await fetch('/api/videos/reorder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sourceIndex: index, destinationIndex: 0, itemId: id })
+            })
+
+            if (!response.ok) throw new Error('Failed to move')
+
+            mutate()
+            toast({
+                title: "成功",
+                description: "置顶成功"
+            })
+        } catch (error) {
+            toast({
+                title: "错误",
+                description: "移动失败",
+                variant: "destructive"
+            })
+        }
+    }
+
+    const handleMoveToBottom = async (id: string) => {
+        const index = items.findIndex(item => item.id === id)
+        if (index < 0 || index >= items.length - 1) return
+
+        try {
+            const response = await fetch('/api/videos/reorder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sourceIndex: index, destinationIndex: items.length - 1, itemId: id })
+            })
+
+            if (!response.ok) throw new Error('Failed to move')
+
+            mutate()
+            toast({
+                title: "成功",
+                description: "置底成功"
+            })
+        } catch (error) {
+            toast({
+                title: "错误",
+                description: "移动失败",
+                variant: "destructive"
+            })
+        }
+    }
+
+    const handleDragEnd = async (result: DropResult) => {
+        if (!result.destination) return
+
+        const sourceIndex = result.source.index
+        const destinationIndex = result.destination.index
+
+        if (sourceIndex === destinationIndex) return
+
+        const currentItems = Array.isArray(items) ? [...items] : []
+        const originalItems = [...currentItems]
+
+        const [movedItem] = currentItems.splice(sourceIndex, 1)
+        currentItems.splice(destinationIndex, 0, movedItem)
+
+        await mutate(currentItems, {
+            revalidate: false
+        })
+
+        try {
+            const response = await fetch('/api/videos/reorder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sourceIndex,
+                    destinationIndex,
+                    itemId: result.draggableId
+                })
+            })
+
+            if (!response.ok) {
+                await mutate(originalItems, { revalidate: false })
+                throw new Error('排序失败')
+            }
+
+            await mutate()
+
+            toast({
+                title: "成功",
+                description: "排序已更新"
+            })
+
+        } catch (error) {
+            await mutate(originalItems, { revalidate: false })
+
+            toast({
+                title: "错误",
+                description: "排序失败，已恢复原状",
                 variant: "destructive"
             })
         }
@@ -163,19 +272,42 @@ export default function VideosAdminPage() {
                             <p className="mb-4 mt-2 text-sm text-muted-foreground">
                                 {searchQuery ? "没有找到匹配的分类。" : "还没有添加任何分类，点击上方的添加按钮开始创建。"}
                             </p>
+                            {searchQuery && (
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setSearchQuery("")}
+                                >
+                                    清除搜索
+                                </Button>
+                            )}
                         </div>
                     </div>
                 ) : (
-                    <div className="space-y-4">
-                        {filteredItems.map((item, index) => (
-                            <VideoCategoryCard
-                                key={item.id}
-                                item={item}
-                                index={index}
-                                onUpdate={mutate}
-                            />
-                        ))}
-                    </div>
+                    <DragDropContext onDragEnd={handleDragEnd}>
+                        <Droppable droppableId="video-list">
+                            {(provided) => (
+                                <div
+                                    {...provided.droppableProps}
+                                    ref={provided.innerRef}
+                                    className="space-y-4"
+                                >
+                                    {filteredItems.map((item, index) => (
+                                        <VideoCategoryCard
+                                            key={item.id}
+                                            item={item}
+                                            index={index}
+                                            onUpdate={mutate}
+                                            showMoveToTop={index > 0}
+                                            showMoveToBottom={index < filteredItems.length - 1}
+                                            onMoveToTop={() => handleMoveToTop(item.id)}
+                                            onMoveToBottom={() => handleMoveToBottom(item.id)}
+                                        />
+                                    ))}
+                                    {provided.placeholder}
+                                </div>
+                            )}
+                        </Droppable>
+                    </DragDropContext>
                 )}
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

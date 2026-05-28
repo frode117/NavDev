@@ -57,17 +57,22 @@ export default function SubmissionsPage() {
     const [showRejectDialog, setShowRejectDialog] = useState(false)
     const [rejectReason, setRejectReason] = useState('')
     const [actionLoading, setActionLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
     const fetchSubmissions = async (status: string) => {
         setLoading(true)
+        setError(null)
         try {
             const response = await fetch(`/api/submissions?status=${status}`)
             const data = await response.json()
             if (data.success) {
                 setSubmissions(data.submissions)
+            } else {
+                setError(data.message || '获取投稿列表失败')
             }
         } catch (error) {
             console.error('Failed to fetch submissions:', error)
+            setError('网络错误，请检查网络连接或稍后重试')
         } finally {
             setLoading(false)
         }
@@ -200,10 +205,28 @@ export default function SubmissionsPage() {
                                 <div className="flex items-center justify-center py-12">
                                     <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                                 </div>
+                            ) : error ? (
+                                <div className="flex flex-col items-center justify-center py-12">
+                                    <XCircle className="h-12 w-12 mb-4 text-destructive" />
+                                    <p className="text-destructive font-medium mb-2">加载失败</p>
+                                    <p className="text-sm text-muted-foreground mb-4">{error}</p>
+                                    <div className="text-xs text-muted-foreground bg-muted p-4 rounded-lg max-w-lg">
+                                        <p className="font-semibold mb-2">可能的原因：</p>
+                                        <ul className="list-disc list-inside space-y-1">
+                                            <li>仓库中的 Issues 没有添加 <code className="bg-background px-1 rounded">submission</code> 标签</li>
+                                            <li>GitHub PAT 权限不足或已过期</li>
+                                            <li>环境变量 GITHUB_OWNER/GITHUB_REPO 配置错误</li>
+                                        </ul>
+                                        <p className="mt-3">
+                                            当前配置：通过投稿表单提交的内容会自动创建带标签的 Issue
+                                        </p>
+                                    </div>
+                                </div>
                             ) : submissions.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                                     <Inbox className="h-12 w-12 mb-4" />
-                                    <p>暂无投稿</p>
+                                    <p className="mb-2">暂无投稿</p>
+                                    <p className="text-xs">通过 /submit 页面提交投稿后，会在这里显示</p>
                                 </div>
                             ) : (
                                 <Table>
