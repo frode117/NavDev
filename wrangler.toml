@@ -1,0 +1,37 @@
+name = "navdev"
+compatibility_date = "2026-05-28"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+# KV Namespace 绑定
+# 创建命令: wrangler kv:namespace create NAVDEV_KV
+# 创建后将返回的 id 填入下方
+[[kv_namespaces]]
+binding = "NAVDEV_KV"
+id = "c6e16d2b9ee54db5b3c36353dee89ad4"
+
+# R2 Bucket 绑定
+# 创建命令: wrangler r2 bucket create navdev-assets
+[[r2_buckets]]
+binding = "NAVDEV_R2"
+bucket_name = "navdev-assets"
+
+[env.production.vars]
+GITHUB_CLIENT_ID = "Ov23liCGPbXJBPQKwJap"
+GITHUB_OWNER = "frode117"
+GITHUB_REPO = "NavDev"
+GITHUB_BRANCH = "main"
+NEXTAUTH_URL = "https://navdev.frode.site/api/auth"
+NEXT_PUBLIC_API_URL = "http://navdev.frode.site"
+R2_PUBLIC_URL = "https://assets.navdev.frode.site"
+
+# Production KV Namespace
+[[env.production.kv_namespaces]]
+binding = "NAVDEV_KV"
+id = "c6e16d2b9ee54db5b3c36353dee89ad4"
+
+# Production R2 Bucket
+[[env.production.r2_buckets]]
+binding = "NAVDEV_R2"
+bucket_name = "navdev-assets"
+

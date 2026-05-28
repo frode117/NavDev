@@ -35,10 +35,6 @@ yarn-error.log*
 .env.*.local
 !.env.example
 
-# Wrangler 配置 (包含 KV/R2 ID)
-wrangler.toml
-!wrangler.toml.example
-
 # Cloudflare 本地状态
 .wrangler/
 /.cloudflare/
