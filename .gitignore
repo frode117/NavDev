@@ -25,8 +25,31 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
-.env*.local
+# ============================================
+# 敏感文件 - 绝对不要提交!
+# ============================================
+
+# 本地环境变量 (包含密钥、令牌等)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Wrangler 配置 (包含 KV/R2 ID)
+wrangler.toml
+!wrangler.toml.example
+
+# Cloudflare 本地状态
+.wrangler/
+/.cloudflare/
+
+# 迁移脚本临时文件
+scripts/temp-*.json
+scripts/migration-status.json
+
+# ============================================
+# 构建和缓存
+# ============================================
 
 # vercel
 .vercel
@@ -35,9 +58,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# 环境变量
-.env*.local
-/.cloudflare/
 # Webpack 缓存
 cache/
 .cache/
@@ -47,20 +67,18 @@ cache/
 .next/cache/
 dist/cache/
 build/cache/
-/.venv/
-/.npm_cache/
+
+# ============================================
+# 开发工具
+# ============================================
 /.venv/
 /.npm_cache/
 pnpm-workspace.yaml
 
-# 其他
-.wrangler/
-scripts/*.json
-
-# Cloudflare 配置文件（包含敏感信息）
-wrangler.toml
-
-# 动态资源（仅本地开发使用，生产环境从 Cloudflare R2 读取）
+# ============================================
+# 动态资源
+# ============================================
+# 仅本地开发使用，生产环境从 Cloudflare R2 读取
 public/assets/favicon_*
 public/assets/img_*
 public/assets/cover/
