@@ -23,6 +23,7 @@ import { Alert, AlertDescription } from "@/registry/new-york/ui/alert"
 import { Loader2, CheckCircle, XCircle, Send, Globe, FileText, Tag, RefreshCw } from 'lucide-react'
 import type { NavigationData, NavigationItem, NavigationCategory } from '@/types/navigation'
 import type { SubmissionData, SubmissionResponse } from '@/types/submission'
+import { useFetchMetadata, isValidUrl } from '@/lib/hooks/use-fetch-metadata'
 
 interface SubmissionFormProps {
     navigationData: NavigationData
@@ -41,37 +42,12 @@ export function SubmissionForm({ navigationData }: SubmissionFormProps) {
     const [subCategories, setSubCategories] = useState<NavigationCategory[]>([])
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [result, setResult] = useState<SubmissionResponse | null>(null)
-    const [isFetchingMetadata, setIsFetchingMetadata] = useState(false)
 
-    const isValidUrl = (string: string): boolean => {
-        try {
-            new URL(string)
-            return true
-        } catch (_) {
-            return false
-        }
-    }
+    const { fetchMetadata, isLoading: isFetchingMetadata } = useFetchMetadata()
 
-    const fetchWebsiteMetadata = async (url: string, force: boolean = false) => {
-        if (isFetchingMetadata) return
-
-        setIsFetchingMetadata(true)
-        try {
-            const response = await fetch('/api/website-metadata', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ url }),
-            })
-
-            if (!response.ok) {
-                throw new Error('获取网站信息失败')
-            }
-
-            const metadata = await response.json()
-
-            // 只有强制刷新或字段为空时才更新
+    const handleFetchMetadata = async (url: string, force: boolean = false) => {
+        const metadata = await fetchMetadata(url)
+        if (metadata) {
             if (force || !formData.title) {
                 if (metadata.title) {
                     setFormData(prev => ({ ...prev, title: metadata.title }))
@@ -82,10 +58,6 @@ export function SubmissionForm({ navigationData }: SubmissionFormProps) {
                     setFormData(prev => ({ ...prev, description: metadata.description }))
                 }
             }
-        } catch (error) {
-            console.error('Failed to fetch website metadata:', error)
-        } finally {
-            setIsFetchingMetadata(false)
         }
     }
 
@@ -93,7 +65,7 @@ export function SubmissionForm({ navigationData }: SubmissionFormProps) {
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             if (formData.url && isValidUrl(formData.url) && !formData.title) {
-                fetchWebsiteMetadata(formData.url)
+                handleFetchMetadata(formData.url)
             }
         }, 1000)
 
@@ -135,7 +107,6 @@ export function SubmissionForm({ navigationData }: SubmissionFormProps) {
             setResult(data)
 
             if (data.success) {
-                // 清空表单
                 setFormData({
                     title: '',
                     url: '',
@@ -145,7 +116,7 @@ export function SubmissionForm({ navigationData }: SubmissionFormProps) {
                     submitterNote: ''
                 })
             }
-        } catch (error) {
+        } catch {
             setResult({
                 success: false,
                 message: '网络错误，请稍后重试'
@@ -246,7 +217,7 @@ export function SubmissionForm({ navigationData }: SubmissionFormProps) {
                                 size="icon"
                                 className="h-11 w-11"
                                 disabled={!formData.url || !isValidUrl(formData.url) || isFetchingMetadata}
-                                onClick={() => fetchWebsiteMetadata(formData.url, true)}
+                                onClick={() => handleFetchMetadata(formData.url, true)}
                             >
                                 {isFetchingMetadata ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />

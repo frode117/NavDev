@@ -22,6 +22,7 @@ import { useState, useEffect } from "react"
 import { useToast } from "@/registry/new-york/hooks/use-toast"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/registry/new-york/ui/select"
 import { VideoIconUpload } from "./VideoIconUpload"
+import { useFetchMetadata, isValidUrl } from '@/lib/hooks/use-fetch-metadata'
 
 const videoConfigSchema = z.object({
     type: z.enum(['bilibili', 'youtube']),
@@ -69,55 +70,13 @@ export function AddVideoItemForm({ onSubmit, onCancel, defaultValues }: AddVideo
     })
 
     const isSubmitting = form.formState.isSubmitting
-    const [isUploading, setIsUploading] = useState(false)
 
     const useVideoConfig = form.watch("useVideoConfig")
     const videoType = form.watch("videoConfig.type")
 
-    const [isFetchingMetadata, setIsFetchingMetadata] = useState(false)
-
-    // 监听 href 字段变化，自动获取网站信息
-    const hrefValue = form.watch("href")
-
-    useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            if (hrefValue && isValidUrl(hrefValue) && !defaultValues) {
-                fetchWebsiteMetadata(hrefValue)
-            }
-        }, 1000) // 延迟1秒执行，避免频繁请求
-
-        return () => clearTimeout(timeoutId)
-    }, [hrefValue, defaultValues])
-
-    const isValidUrl = (string: string): boolean => {
-        try {
-            new URL(string)
-            return true
-        } catch (_) {
-            return false
-        }
-    }
-
-    const fetchWebsiteMetadata = async (url: string, force: boolean = false) => {
-        if (isFetchingMetadata) return
-
-        setIsFetchingMetadata(true)
-        try {
-            const response = await fetch('/api/website-metadata', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ url }),
-            })
-
-            if (!response.ok) {
-                throw new Error('获取网站信息失败')
-            }
-
-            const metadata = await response.json()
-
-            // 标题和描述：如果是强制刷新或当前为空，则更新
+    const { fetchMetadata, isLoading: isFetchingMetadata } = useFetchMetadata({
+        onSuccess: (metadata) => {
+            const force = false
             if (force || !form.getValues('title')) {
                 if (metadata.title) form.setValue('title', metadata.title)
             }
@@ -125,9 +84,6 @@ export function AddVideoItemForm({ onSubmit, onCancel, defaultValues }: AddVideo
                 if (metadata.description) form.setValue('description', metadata.description)
             }
 
-            // 图标/封面：
-            // 1. 优先使用 og:image
-            // 2. 更新条件：强制刷新 OR 当前为空 OR (当前是远程链接且新的是本地链接)
             const iconUrl = metadata.image || metadata.icon
             const currentIcon = form.getValues('icon')
 
@@ -137,10 +93,8 @@ export function AddVideoItemForm({ onSubmit, onCancel, defaultValues }: AddVideo
                 }
             }
 
-            // 自动填充嵌入播放配置
             if (metadata.videoConfig) {
                 const config = metadata.videoConfig
-                // 启用嵌入播放
                 form.setValue('useVideoConfig', true)
                 form.setValue('videoConfig.type', config.type)
 
@@ -158,17 +112,37 @@ export function AddVideoItemForm({ onSubmit, onCancel, defaultValues }: AddVideo
                 title: "成功",
                 description: "已自动获取视频信息"
             })
-        } catch (error) {
-            console.error('Failed to fetch website metadata:', error)
+        },
+        onError: () => {
             toast({
                 title: "提示",
                 description: "自动获取视频信息失败，请手动填写",
                 variant: "destructive"
             })
-        } finally {
-            setIsFetchingMetadata(false)
+        }
+    })
+
+    const handleFetchMetadata = async (url: string, force: boolean = false) => {
+        const metadata = await fetchMetadata(url)
+        if (metadata && force) {
+            if (metadata.title) form.setValue('title', metadata.title)
+            if (metadata.description) form.setValue('description', metadata.description)
+            const iconUrl = metadata.image || metadata.icon
+            if (iconUrl) form.setValue('icon', iconUrl)
         }
     }
+
+    const hrefValue = form.watch("href")
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (hrefValue && isValidUrl(hrefValue) && !defaultValues) {
+                fetchMetadata(hrefValue)
+            }
+        }, 1000)
+
+        return () => clearTimeout(timeoutId)
+    }, [hrefValue, defaultValues])
 
     return (
         <Form {...form}>
@@ -215,7 +189,7 @@ export function AddVideoItemForm({ onSubmit, onCancel, defaultValues }: AddVideo
                                         variant="outline"
                                         size="sm"
                                         disabled={!field.value || !isValidUrl(field.value) || isFetchingMetadata}
-                                        onClick={() => fetchWebsiteMetadata(field.value, true)}
+                                        onClick={() => handleFetchMetadata(field.value, true)}
                                     >
                                         {isFetchingMetadata ? (
                                             <Icons.loader2 className="h-4 w-4 animate-spin" />

@@ -20,6 +20,7 @@ import { Textarea } from "@/registry/new-york/ui/textarea"
 import { Switch } from "@/registry/new-york/ui/switch"
 import { useState, useEffect } from "react"
 import { useToast } from "@/registry/new-york/hooks/use-toast"
+import { useFetchMetadata, isValidUrl } from '@/lib/hooks/use-fetch-metadata'
 
 const formSchema = z.object({
   id: z.string().optional(),
@@ -52,75 +53,43 @@ export function AddItemForm({ onSubmit, onCancel, defaultValues }: AddItemFormPr
 
   const isSubmitting = form.formState.isSubmitting
   const [isUploading, setIsUploading] = useState(false)
-  const [isFetchingMetadata, setIsFetchingMetadata] = useState(false)
 
-  // 监听 href 字段变化，自动获取网站信息
-  const hrefValue = form.watch("href")
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (hrefValue && isValidUrl(hrefValue) && !defaultValues) {
-        fetchWebsiteMetadata(hrefValue)
-      }
-    }, 1000) // 延迟1秒执行，避免频繁请求
-
-    return () => clearTimeout(timeoutId)
-  }, [hrefValue, defaultValues])
-
-  const isValidUrl = (string: string): boolean => {
-    try {
-      new URL(string)
-      return true
-    } catch (_) {
-      return false
-    }
-  }
-
-  const fetchWebsiteMetadata = async (url: string) => {
-    if (isFetchingMetadata) return
-
-    setIsFetchingMetadata(true)
-    try {
-      const response = await fetch('/api/website-metadata', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url }),
-      })
-
-      if (!response.ok) {
-        throw new Error('获取网站信息失败')
-      }
-
-      const metadata = await response.json()
-
-      // 只在字段为空时自动填充
-      if (!form.getValues('title')) {
+  const { fetchMetadata, isLoading: isFetchingMetadata } = useFetchMetadata({
+    onSuccess: (metadata) => {
+      if (!form.getValues('title') && metadata.title) {
         form.setValue('title', metadata.title)
       }
-      if (!form.getValues('description')) {
+      if (!form.getValues('description') && metadata.description) {
         form.setValue('description', metadata.description)
       }
       if (!form.getValues('icon') && metadata.icon) {
         form.setValue('icon', metadata.icon)
       }
-
       toast({
         title: "成功",
         description: "已自动获取网站信息"
       })
-    } catch (error) {
-      console.error('Failed to fetch website metadata:', error)
+    },
+    onError: () => {
       toast({
         title: "提示",
         description: "自动获取网站信息失败，请手动填写",
         variant: "destructive"
       })
-    } finally {
-      setIsFetchingMetadata(false)
     }
-  }
+  })
+
+  const hrefValue = form.watch("href")
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (hrefValue && isValidUrl(hrefValue) && !defaultValues) {
+        fetchMetadata(hrefValue)
+      }
+    }, 1000)
+
+    return () => clearTimeout(timeoutId)
+  }, [hrefValue, defaultValues])
 
   return (
     <Form {...form}>
@@ -160,7 +129,7 @@ export function AddItemForm({ onSubmit, onCancel, defaultValues }: AddItemFormPr
                     variant="outline"
                     size="sm"
                     disabled={!field.value || !isValidUrl(field.value) || isFetchingMetadata}
-                    onClick={() => fetchWebsiteMetadata(field.value)}
+                    onClick={() => fetchMetadata(field.value)}
                   >
                     {isFetchingMetadata ? (
                       <Icons.loader2 className="h-4 w-4 animate-spin" />
@@ -248,7 +217,6 @@ export function AddItemForm({ onSubmit, onCancel, defaultValues }: AddItemFormPr
                           try {
                             setIsUploading(true);
 
-                            // 将文件转换为 base64
                             const base64 = await new Promise<string>((resolve, reject) => {
                               const reader = new FileReader();
                               reader.onload = () => resolve(reader.result as string);
@@ -262,7 +230,7 @@ export function AddItemForm({ onSubmit, onCancel, defaultValues }: AddItemFormPr
                                 'Content-Type': 'application/json',
                               },
                               body: JSON.stringify({
-                                image: base64 // 直接发送 base64 字符串
+                                image: base64
                               }),
                             });
 
@@ -273,7 +241,7 @@ export function AddItemForm({ onSubmit, onCancel, defaultValues }: AddItemFormPr
                             const data = await response.json();
 
                             if (data.imageUrl) {
-                              field.onChange(`${data.imageUrl}`); // 使用返回的图片URL
+                              field.onChange(`${data.imageUrl}`);
                             } else {
                               throw new Error('未获取到上传后的图片URL');
                             }
@@ -283,7 +251,6 @@ export function AddItemForm({ onSubmit, onCancel, defaultValues }: AddItemFormPr
                             alert(error instanceof Error ? error.message : '上传失败，请重试');
                           } finally {
                             setIsUploading(false);
-                            // 清空文件输入
                             const fileInput = document.getElementById('icon-upload') as HTMLInputElement;
                             if (fileInput) {
                               fileInput.value = '';
