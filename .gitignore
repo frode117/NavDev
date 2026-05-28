@@ -55,6 +55,7 @@ pnpm-workspace.yaml
 
 # 其他
 .wrangler/
+scripts/*.json
 
 # Cloudflare 配置文件（包含敏感信息）
 wrangler.toml

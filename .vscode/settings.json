@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^wrangler whoami$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
