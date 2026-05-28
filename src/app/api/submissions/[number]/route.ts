@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { SUBMISSION_LABELS, parseSubmissionFromIssueBody } from '@/types/submission'
 import { kvGet, kvSet, KV_KEYS } from '@/lib/storage'
 import type { NavigationData } from '@/types/navigation'
+import { fetchLinkMetadata } from '@/lib/link-analysis'
 
 export const runtime = 'edge'
 
@@ -91,12 +92,20 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         targetCategory = navigationData.navigationItems[0]
       }
 
+      // 获取网站元数据（favicon等）
+      let metadata: { icon?: string; title?: string; description?: string } = {}
+      try {
+        metadata = await fetchLinkMetadata(submissionData.url)
+      } catch (error) {
+        console.warn('Failed to fetch website metadata:', error)
+      }
+
       const newItem = {
         id: `${Date.now()}`,
         title: submissionData.title,
         href: submissionData.url,
         description: submissionData.description,
-        icon: '/assets/images/default-website-icon.png',
+        icon: metadata.icon || '/assets/images/default-website-icon.png',
         enabled: true
       }
 

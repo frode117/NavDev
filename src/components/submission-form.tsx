@@ -20,7 +20,7 @@ import {
     CardTitle,
 } from "@/registry/new-york/ui/card"
 import { Alert, AlertDescription } from "@/registry/new-york/ui/alert"
-import { Loader2, CheckCircle, XCircle, Send, Globe, FileText, Tag } from 'lucide-react'
+import { Loader2, CheckCircle, XCircle, Send, Globe, FileText, Tag, RefreshCw } from 'lucide-react'
 import type { NavigationData, NavigationItem, NavigationCategory } from '@/types/navigation'
 import type { SubmissionData, SubmissionResponse } from '@/types/submission'
 
@@ -41,6 +41,64 @@ export function SubmissionForm({ navigationData }: SubmissionFormProps) {
     const [subCategories, setSubCategories] = useState<NavigationCategory[]>([])
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [result, setResult] = useState<SubmissionResponse | null>(null)
+    const [isFetchingMetadata, setIsFetchingMetadata] = useState(false)
+
+    const isValidUrl = (string: string): boolean => {
+        try {
+            new URL(string)
+            return true
+        } catch (_) {
+            return false
+        }
+    }
+
+    const fetchWebsiteMetadata = async (url: string, force: boolean = false) => {
+        if (isFetchingMetadata) return
+
+        setIsFetchingMetadata(true)
+        try {
+            const response = await fetch('/api/website-metadata', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url }),
+            })
+
+            if (!response.ok) {
+                throw new Error('获取网站信息失败')
+            }
+
+            const metadata = await response.json()
+
+            // 只有强制刷新或字段为空时才更新
+            if (force || !formData.title) {
+                if (metadata.title) {
+                    setFormData(prev => ({ ...prev, title: metadata.title }))
+                }
+            }
+            if (force || !formData.description) {
+                if (metadata.description) {
+                    setFormData(prev => ({ ...prev, description: metadata.description }))
+                }
+            }
+        } catch (error) {
+            console.error('Failed to fetch website metadata:', error)
+        } finally {
+            setIsFetchingMetadata(false)
+        }
+    }
+
+    // 自动获取网站信息
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (formData.url && isValidUrl(formData.url) && !formData.title) {
+                fetchWebsiteMetadata(formData.url)
+            }
+        }, 1000)
+
+        return () => clearTimeout(timeoutId)
+    }, [formData.url])
 
     // 当主分类变化时，更新子分类列表
     useEffect(() => {
@@ -165,15 +223,41 @@ export function SubmissionForm({ navigationData }: SubmissionFormProps) {
                             <Globe className="h-4 w-4 text-muted-foreground" />
                             网站地址 <span className="text-red-500">*</span>
                         </Label>
-                        <Input
-                            id="url"
-                            type="url"
-                            placeholder="https://example.com"
-                            value={formData.url}
-                            onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                            required
-                            className="h-11"
-                        />
+                        <div className="flex items-center gap-2">
+                            <div className="relative flex-1">
+                                <Input
+                                    id="url"
+                                    type="url"
+                                    placeholder="https://example.com"
+                                    value={formData.url}
+                                    onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                                    required
+                                    className="h-11"
+                                />
+                                {isFetchingMetadata && (
+                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                                    </div>
+                                )}
+                            </div>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                className="h-11 w-11"
+                                disabled={!formData.url || !isValidUrl(formData.url) || isFetchingMetadata}
+                                onClick={() => fetchWebsiteMetadata(formData.url, true)}
+                            >
+                                {isFetchingMetadata ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                    <RefreshCw className="h-4 w-4" />
+                                )}
+                            </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            输入网址后将自动获取网站名称和描述
+                        </p>
                     </div>
 
                     {/* 网站描述 */}
