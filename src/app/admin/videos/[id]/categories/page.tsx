@@ -34,6 +34,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 
 import { Badge } from "@/registry/new-york/ui/badge"
 import { Skeleton } from "@/registry/new-york/ui/skeleton"
+import { cn } from "@/lib/utils"
 import {
     Select,
     SelectContent,
@@ -190,7 +191,7 @@ export default function VideoCategoriesPage() {
 
     const deleteCategory = async (categoryId: string) => {
         // We need to implement subcategory deletion.
-        // Currently api/videos/[id] supports updating the whole object, 
+        // Currently api/videos/[id] supports updating the whole object,
         // so we can filter locally and PUT the updated navigation object.
 
         if (!params?.id || !navigation) return
@@ -225,8 +226,68 @@ export default function VideoCategoriesPage() {
         }
     }
 
-    // Reuse Drag and Drop logic if needed, similar to Navigation Categories page.
-    // ... (Omitting Drag and Drop for brevity unless requested, but good to have)
+    const moveCategory = async (fromIndex: number, toIndex: number) => {
+        if (!params?.id || !navigation?.subCategories) return
+
+        const newCategories = [...navigation.subCategories]
+        const [removed] = newCategories.splice(fromIndex, 1)
+        newCategories.splice(toIndex, 0, removed)
+
+        const updatedNavigation = {
+            ...navigation,
+            subCategories: newCategories
+        }
+
+        // 乐观更新
+        setNavigation(updatedNavigation)
+
+        try {
+            const response = await fetch(`/api/videos/${params.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedNavigation)
+            })
+
+            if (!response.ok) throw new Error('Failed to save order')
+
+            toast({
+                title: "成功",
+                description: "排序已更新"
+            })
+        } catch (error) {
+            // 回滚
+            await fetchNavigation()
+            toast({
+                title: "错误",
+                description: "保存顺序失败",
+                variant: "destructive"
+            })
+        }
+    }
+
+    const handleDragEnd = (result: DropResult) => {
+        const { destination, source } = result
+
+        if (!destination || destination.index === source.index || !navigation?.subCategories) return
+
+        moveCategory(source.index, destination.index)
+    }
+
+    const moveToTop = async (id: string) => {
+        if (!navigation?.subCategories) return
+        const index = navigation.subCategories.findIndex(cat => cat.id === id)
+        if (index > 0) {
+            moveCategory(index, 0)
+        }
+    }
+
+    const moveToBottom = async (id: string) => {
+        if (!navigation?.subCategories) return
+        const index = navigation.subCategories.findIndex(cat => cat.id === id)
+        if (index < (navigation.subCategories.length - 1)) {
+            moveCategory(index, navigation.subCategories.length - 1)
+        }
+    }
 
     const filteredCategories = navigation?.subCategories?.filter(category => {
         const matchesSearch = category.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -328,83 +389,137 @@ export default function VideoCategoriesPage() {
                     ))}
                 </div>
             ) : (
-                <div className="grid gap-2">
-                    {filteredCategories.map((category, index) => (
-                        <div
-                            key={category.id}
-                            className="flex items-center justify-between py-2 px-4 bg-card rounded-lg border shadow-sm transition-colors hover:bg-accent/10"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
-                                    <Folder className="w-5 h-5 text-primary" />
-                                </div>
-                                <div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="font-medium leading-none">{category.title}</span>
-                                        <Badge
-                                            variant={(category.enabled ?? true) ? "default" : "secondary"}
-                                            className={
-                                                (category.enabled ?? true)
-                                                    ? "text-xs bg-green-100 text-green-800 hover:bg-green-100"
-                                                    : "text-xs bg-gray-100 text-gray-600 hover:bg-gray-100"
-                                            }
-                                        >
-                                            {(category.enabled ?? true) ? "已启用" : "已禁用"}
-                                        </Badge>
+                <DragDropContext onDragEnd={handleDragEnd}>
+                    <Droppable droppableId="video-categories">
+                        {(provided) => (
+                            <div {...provided.droppableProps} ref={provided.innerRef} className="grid gap-2">
+                                {filteredCategories.map((category, index) => (
+                                    <Draggable key={category.id} draggableId={category.id} index={index}>
+                                        {(provided) => (
+                                            <div
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                                ref={provided.innerRef}
+                                                className="group relative"
+                                            >
+                                                {(() => {
+                                                    const realIndex = navigation!.subCategories!.findIndex(c => c.id === category.id)
+                                                    const isFirst = realIndex === 0
+                                                    const isLast = realIndex === (navigation!.subCategories!.length - 1)
+                                                    return (
+                                                        <div
+                                                            className="flex items-center justify-between py-2 px-4 bg-card rounded-lg border shadow-sm transition-colors hover:bg-accent/10 cursor-pointer"
+                                                            onDoubleClick={() => {
+                                                                if (params?.id) {
+                                                                    router.push(`/admin/videos/${params.id}/categories/${category.id}/items`)
+                                                                }
+                                                            }}
+                                                        >
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
+                                                                    <Folder className="w-5 h-5 text-primary" />
+                                                                </div>
+                                                                <div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="font-medium leading-none">{category.title}</span>
+                                                                        <Badge
+                                                                            variant={(category.enabled ?? true) ? "default" : "secondary"}
+                                                                            className={
+                                                                                (category.enabled ?? true)
+                                                                                    ? "text-xs bg-green-100 text-green-800 hover:bg-green-100"
+                                                                                    : "text-xs bg-gray-100 text-gray-600 hover:bg-gray-100"
+                                                                            }
+                                                                        >
+                                                                            {(category.enabled ?? true) ? "已启用" : "已禁用"}
+                                                                        </Badge>
+                                                                    </div>
+                                                                    {category.description && (
+                                                                        <div className="text-xs text-muted-foreground mt-1">
+                                                                            {category.description}
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="text-xs text-muted-foreground mt-1">
+                                                                        {category.items?.length || 0} 个视频
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex items-center gap-1">
+                                                                {/* Top/Bottom buttons - leftmost, hover-only */}
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className={cn(
+                                                                        "h-7 w-7 transition-opacity",
+                                                                        isFirst ? "invisible pointer-events-none" : "opacity-0 group-hover:opacity-100"
+                                                                    )}
+                                                                    onClick={(e) => { e.stopPropagation(); moveToTop(category.id) }}
+                                                                    title="置顶"
+                                                                >
+                                                                    <ChevronsUp className="h-4 w-4" />
+                                                                </Button>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className={cn(
+                                                                        "h-7 w-7 transition-opacity",
+                                                                        isLast ? "invisible pointer-events-none" : "opacity-0 group-hover:opacity-100"
+                                                                    )}
+                                                                    onClick={(e) => { e.stopPropagation(); moveToBottom(category.id) }}
+                                                                    title="置底"
+                                                                >
+                                                                    <ChevronsDown className="h-4 w-4" />
+                                                                </Button>
+                                                                {/* Regular action buttons */}
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    onClick={() => {
+                                                                        if (params?.id) {
+                                                                            router.push(`/admin/videos/${params.id}/categories/${category.id}/items`)
+                                                                        }
+                                                                    }}
+                                                                    title="管理视频"
+                                                                >
+                                                                    <List className="h-4 w-4" />
+                                                                </Button>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    onClick={() => setEditingCategory({ index, category })}
+                                                                    title="编辑"
+                                                                >
+                                                                    <Pencil className="h-4 w-4" />
+                                                                </Button>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    onClick={() => setDeletingCategory({ index, category })}
+                                                                    title="删除"
+                                                                >
+                                                                    <Trash className="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                })()}
+                                            </div>
+                                        )}
+                                    </Draggable>
+                                ))}
+                                {provided.placeholder}
+                                {filteredCategories.length === 0 && (
+                                    <div className="text-center py-10 text-muted-foreground">
+                                        {navigation?.subCategories?.length === 0 ? (
+                                            <p>暂无子分类，双击卡片可进入视频管理</p>
+                                        ) : (
+                                            <p>未找到匹配的子分类</p>
+                                        )}
                                     </div>
-                                    {category.description && (
-                                        <div className="text-xs text-muted-foreground mt-1">
-                                            {category.description}
-                                        </div>
-                                    )}
-                                    <div className="text-xs text-muted-foreground mt-1">
-                                        {category.items?.length || 0} 个项目
-                                    </div>
-                                </div>
+                                )}
                             </div>
-                            <div className="flex items-center gap-1">
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => {
-                                        if (params?.id) {
-                                            // Navigate to manage items for ONLY this subcategory
-                                            router.push(`/admin/videos/${params.id}/categories/${category.id}/items`)
-                                        }
-                                    }}
-                                    title="管理子视频"
-                                >
-                                    <List className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => setEditingCategory({ index, category })}
-                                    title="编辑"
-                                >
-                                    <Pencil className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => setDeletingCategory({ index, category })}
-                                    title="删除"
-                                >
-                                    <Trash className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        </div>
-                    ))}
-                    {filteredCategories.length === 0 && (
-                        <div className="text-center py-10 text-muted-foreground">
-                            {navigation?.subCategories?.length === 0 ? (
-                                <p>暂无子分类</p>
-                            ) : (
-                                <p>未找到匹配的子分类</p>
-                            )}
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </Droppable>
+                </DragDropContext>
             )}
 
             <Dialog open={!!editingCategory} onOpenChange={(open) => !open && setEditingCategory(null)}>
