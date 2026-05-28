@@ -19,7 +19,6 @@ import { NavigationItem } from '@/types/navigation'
 import { navigationIcons, type IconType } from '@/lib/icons'
 import {
     FolderOpen,
-    List,
     Pencil,
     Trash,
     ChevronsUp,
@@ -53,6 +52,10 @@ export function VideoCategoryCard({
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
     const Icon = item.icon && navigationIcons[item.icon as IconType] ? navigationIcons[item.icon as IconType] : navigationIcons.Folder
+
+    const handleDoubleClick = () => {
+        router.push(`/admin/videos/${item.id}/categories`)
+    }
 
     const handleEdit = async (values: {
         title: string;
@@ -120,6 +123,7 @@ export function VideoCategoryCard({
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
+                    onDoubleClick={handleDoubleClick}
                     className={`group flex items-center justify-between p-4 rounded-lg border bg-card text-card-foreground shadow-sm hover:border-primary/50 transition-colors cursor-pointer ${snapshot.isDragging ? 'bg-gray-50' : ''
                         }`}
                 >
@@ -190,22 +194,7 @@ export function VideoCategoryCard({
                                     </Button>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <p>分类管理</p>
-                                </TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => router.push(`/admin/videos/${item.id}/items`)}
-                                        className="h-8 w-8"
-                                    >
-                                        <List className="h-4 w-4" />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>视频管理</p>
+                                    <p>子分类管理</p>
                                 </TooltipContent>
                             </Tooltip>
                             <Tooltip>
@@ -264,7 +253,7 @@ export function VideoCategoryCard({
                             <DialogHeader>
                                 <DialogTitle>确认删除</DialogTitle>
                                 <DialogDescription>
-                                    确定要删除这个分类吗？此操作无法撤消，所有相关的视频都将被删除。
+                                    确定要删除这个分类吗？此操作无法撤消，所有相关的子分类和视频都将被删除。
                                 </DialogDescription>
                             </DialogHeader>
                             <DialogFooter className="gap-2 sm:gap-0">

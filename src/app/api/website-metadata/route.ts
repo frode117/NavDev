@@ -55,7 +55,7 @@ export async function POST(request: Request) {
             }
         }
 
-        const isVideoUrl = extractBilibiliVideoId(url) !== null
+        const isVideoUrl = extractBilibiliVideoId(url) !== null || extractYoutubeVideoId(url) !== null
         const skipFavicon = isVideoUrl && metadata.image
 
         if (metadata.icon && !skipFavicon) {
@@ -116,6 +116,52 @@ function extractBilibiliVideoId(url: string): { bvid?: string; aid?: string } | 
     }
 }
 
+function extractYoutubeVideoId(url: string): string | null {
+    try {
+        const urlObj = new URL(url)
+        const hostname = urlObj.hostname
+
+        if (!hostname.includes('youtube.com') && !hostname.includes('youtu.be')) {
+            return null
+        }
+
+        if (hostname.includes('youtu.be')) {
+            return urlObj.pathname.slice(1).split('?')[0]
+        }
+
+        if (urlObj.pathname.includes('/watch')) {
+            return urlObj.searchParams.get('v')
+        }
+
+        if (urlObj.pathname.includes('/embed/') || urlObj.pathname.includes('/v/')) {
+            const match = urlObj.pathname.match(/\/(embed|v)\/([^/?]+)/)
+            return match ? match[2] : null
+        }
+
+        if (urlObj.pathname.includes('/shorts/')) {
+            const match = urlObj.pathname.match(/\/shorts\/([^/?]+)/)
+            return match ? match[1] : null
+        }
+
+        return null
+    } catch {
+        return null
+    }
+}
+
+function getYoutubeVideoInfo(videoId: string): WebsiteMetadata {
+    return {
+        title: '',
+        description: '',
+        icon: '/assets/icons/youtube.svg',
+        image: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+        videoConfig: {
+            type: 'youtube',
+            videoId: videoId
+        }
+    }
+}
+
 async function fetchBilibiliVideoInfo(videoId: { bvid?: string; aid?: string }): Promise<WebsiteMetadata | null> {
     try {
         let apiUrl: string
@@ -172,12 +218,39 @@ async function fetchBilibiliVideoInfo(videoId: { bvid?: string; aid?: string }):
 
 async function fetchWebsiteMetadata(url: string): Promise<WebsiteMetadata> {
     try {
+        // 优先检查Bilibili视频
         const bilibiliVideoId = extractBilibiliVideoId(url)
         if (bilibiliVideoId) {
             const bilibiliInfo = await fetchBilibiliVideoInfo(bilibiliVideoId)
             if (bilibiliInfo) {
                 return bilibiliInfo
             }
+        }
+
+        // 检查YouTube视频
+        const youtubeVideoId = extractYoutubeVideoId(url)
+        if (youtubeVideoId) {
+            const youtubeInfo = getYoutubeVideoInfo(youtubeVideoId)
+            // 尝试获取YouTube页面的标题和描述
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8'
+                    },
+                    signal: AbortSignal.timeout(5000)
+                })
+                if (response.ok) {
+                    const html = await response.text()
+                    const htmlMetadata = parseMetadataFromHtml(html, url)
+                    youtubeInfo.title = htmlMetadata.title || youtubeInfo.title
+                    youtubeInfo.description = htmlMetadata.description || youtubeInfo.description
+                }
+            } catch {
+                // 忽略获取HTML失败的情况，使用默认值
+            }
+            return youtubeInfo
         }
 
         const headers = {
