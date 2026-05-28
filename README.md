@@ -214,6 +214,25 @@ pnpm run cf:deploy
 3. Homepage URL: `https://your-domain.com`
 4. Callback URL: `https://your-domain.com/api/auth/callback/github`
 
+### GitHub Personal Access Token (投稿功能)
+
+投稿功能需要 GitHub PAT 来创建和管理 Issues。配置步骤：
+
+1. 访问 [GitHub Personal Access Tokens](https://github.com/settings/tokens?type=beta)
+2. 点击 "Generate new token" > "Fine-grained token"
+3. 配置 Token：
+   - **Token name**: `NavDev Submissions`
+   - **Expiration**: 自定义过期时间（建议90天或更长）
+   - **Repository access**: 选择 "Only select repositories"，然后选择你的 NavDev 仓库（例如 `frode117/NavDev`）
+   - **Permissions**: 
+     - Repository permissions > Issues: **Read and write**
+4. 生成 Token 并复制到 `.env.local` 中的 `GITHUB_PAT` 变量
+
+**重要提示**：
+- PAT 过期后投稿功能将失效，需要重新生成
+- 确保 PAT 有对应仓库的 Issues 读写权限
+- 在 `.env.local` 中配置 `GITHUB_OWNER` 和 `GITHUB_REPO` 为你的实际仓库信息
+
 ### 生成密钥
 
 ```bash

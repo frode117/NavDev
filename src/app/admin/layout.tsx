@@ -3,17 +3,34 @@ import { auth } from '@/lib/auth'
 import { AdminLayoutClient } from './AdminLayoutClient'
 import { Toaster } from "@/registry/new-york/ui/toaster"
 import { Metadata } from 'next'
+import { kvGet, KV_KEYS } from '@/lib/storage'
+import siteDataFallback from '@/navdev/content/site.json'
 
 export const runtime = 'edge'
+export const dynamic = 'force-dynamic'
 
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const siteData = await kvGet<typeof siteDataFallback>(KV_KEYS.SITE_CONFIG) || siteDataFallback
 
-export const metadata: Metadata = {
-  title: 'NavDev Admin',
-  description: 'NavDev Admin Dashboard',
-  icons: {
-    icon: '/assets/images/favicon.webp',
-    shortcut: '/assets/images/favicon.webp',
-    apple: '/assets/images/favicon.webp',
+    return {
+      title: `${siteData.basic.title || 'NavDev'} Admin`,
+      description: `${siteData.basic.title || 'NavDev'} Admin Dashboard`,
+      icons: {
+        icon: siteData.appearance.favicon || '/favicon.ico',
+        shortcut: siteData.appearance.favicon || '/favicon.ico',
+        apple: siteData.appearance.favicon || '/favicon.ico',
+      }
+    }
+  } catch (error) {
+    console.error('Error loading site config for metadata:', error)
+    return {
+      title: 'NavDev Admin',
+      description: 'NavDev Admin Dashboard',
+      icons: {
+        icon: '/favicon.ico',
+      }
+    }
   }
 }
 
@@ -28,6 +45,9 @@ export default async function AdminLayout({
     redirect('/auth/signin')
   }
 
+  // 获取站点配置用于logo
+  const siteData = await kvGet<typeof siteDataFallback>(KV_KEYS.SITE_CONFIG) || siteDataFallback
+
   return (
     <>
       <AdminLayoutClient
@@ -36,6 +56,7 @@ export default async function AdminLayout({
           email: session.user.email,
           image: session.user.image
         }}
+        logoUrl={siteData.appearance.logo || '/assets/images/alogo.webp'}
       >
         {children}
       </AdminLayoutClient>

@@ -43,6 +43,7 @@ interface AdminLayoutClientProps {
     email?: string | null
     image?: string | null
   }
+  logoUrl: string
 }
 
 const menuItems = [
@@ -103,7 +104,7 @@ const menuItems = [
   }
 ]
 
-export function AdminLayoutClient({ children, user }: AdminLayoutClientProps) {
+export function AdminLayoutClient({ children, user, logoUrl }: AdminLayoutClientProps) {
   const pathname = usePathname()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [expandedItems, setExpandedItems] = useState<string[]>([])
@@ -159,7 +160,7 @@ export function AdminLayoutClient({ children, user }: AdminLayoutClientProps) {
                         )}>
                           <div className="relative w-8 h-8 overflow-hidden rounded-md">
                             <img
-                              src="/assets/images/alogo.webp"
+                              src={logoUrl}
                               alt="Logo"
                               className="object-cover"
                             />
